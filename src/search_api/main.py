@@ -1,26 +1,30 @@
 from fastapi import FastAPI
-from .routers import vector
-from .models.vector import Base
+from .models.resource import Base
 from .db import engine
+from .routers import search
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+app.include_router(search.router, prefix="/api", tags=["search"])
 
-app.include_router(vector.router, prefix="/api", tags=["vectors"])
 
+# tests/test_search.py
+import pytest
+from fastapi.testclient import TestClient
+from src.search_api.main import app
 
-# Dockerfile
-FROM python:3.11-slim
+client = TestClient(app)
 
-WORKDIR /app
+@pytest.mark.skip(reason="Ollama must be running locally")
+def test_post_search():
+    resp = client.post("/api/search", params={"text": "What is mental health?"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "embedding" in data
 
-COPY pyproject.toml poetry.lock ./
-
-RUN pip install poetry && \
-    poetry config virtualenvs.create false && \
-    poetry install --no-dev
-
-COPY . .
-
-CMD ["uvicorn", "src.search_api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+@pytest.mark.skip(reason="Requires search entry to exist")
+def test_delete_search():
+    uuid_to_delete = "some-uuid-here"
+    resp = client.delete(f"/api/search/{uuid_to_delete}")
+    assert resp.status_code in [200, 404]
