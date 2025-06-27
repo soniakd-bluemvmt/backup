@@ -17,6 +17,7 @@ class Resource(Base):
 
     uuid: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     resource_uuid: Mapped[uuid.UUID] = mapped_column(nullable=False, unique=True)
+    tenant_uuid: Mapped[uuid.UUID] = mapped_column(nullable=False)
     resource_type: Mapped[ResourceType] = mapped_column(PgEnum(ResourceType), nullable=False)
     resource_name: Mapped[str] = mapped_column(VARCHAR, nullable=False)
     resource_description: Mapped[str] = mapped_column(Text, nullable=True)

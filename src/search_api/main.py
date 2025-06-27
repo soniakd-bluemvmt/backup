@@ -1,4 +1,3 @@
-# src/search_api/main.py
 from fastapi import FastAPI
 from .models.resource import Base
 from .db import engine

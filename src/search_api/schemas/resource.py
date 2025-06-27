@@ -10,6 +10,7 @@ class ResourceType(str, Enum):
 
 class ResourceCreate(BaseModel):
     resource_uuid: uuid.UUID
+    tenant_uuid: uuid.UUID
     resource_type: ResourceType
     resource_name: str
     resource_description: str | None = None
@@ -20,3 +21,4 @@ class ResourceRead(BaseModel):
     resource_name: str
     resource_description: str | None
     resource_type: ResourceType
+    score: float

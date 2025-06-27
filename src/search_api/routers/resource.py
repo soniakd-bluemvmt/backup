@@ -14,6 +14,7 @@ def create_resource(payload: ResourceCreate, db: Session = Depends(get_db)):
     embedding = get_embedding_from_ollama(payload.text)
     resource = Resource(
         resource_uuid=payload.resource_uuid,
+        tenant_uuid=payload.tenant_uuid,
         resource_type=payload.resource_type,
         resource_name=payload.resource_name,
         resource_description=payload.resource_description,
@@ -25,7 +26,21 @@ def create_resource(payload: ResourceCreate, db: Session = Depends(get_db)):
     return {"message": "Resource created"}
 
 @router.get("/v1/resource", response_model=list[ResourceRead])
-def search_resources(q: str, max_results: int = 5, db: Session = Depends(get_db)):
+def search_resources(q: str, tenant_uuid: UUID, max_results: int = 5, db: Session = Depends(get_db)):
     embedding = get_embedding_from_ollama(q)
-    stmt = select(Resource).order_by(Resource.embedding.l2_distance(embedding)).limit(max_results)
-    return db.execute(stmt).scalars().all()
+    stmt = select(Resource, Resource.embedding.l2_distance(embedding).label("score"))\
+        .where(Resource.tenant_uuid == tenant_uuid)\
+        .order_by("score")\
+        .limit(max_results)
+    results = db.execute(stmt).all()
+    return [
+        ResourceRead(
+            resource_uuid=row.Resource.resource_uuid,
+            resource_name=row.Resource.resource_name,
+            resource_description=row.Resource.resource_description,
+            resource_type=row.Resource.resource_type,
+            score=row.score
+        )
+        for row in results
+    ]
+
