@@ -27,3 +27,4 @@ class ResourceUpdate(BaseModel):
     resource_name: str | None = None
     resource_description: str | None = None
     text: str | None = None  # if present, re-embed
+
