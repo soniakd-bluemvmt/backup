@@ -21,4 +21,3 @@ class Resource(Base):
     resource_name: Mapped[str] = mapped_column(VARCHAR, nullable=False)
     resource_description: Mapped[str] = mapped_column(Text, nullable=True)
     embedding: Mapped[list[float]] = mapped_column(Vector(1536), nullable=False)
-

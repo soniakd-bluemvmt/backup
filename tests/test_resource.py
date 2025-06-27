@@ -3,6 +3,11 @@ import pytest
 from fastapi.testclient import TestClient
 from src.search_api.main import app
 
+import uuid
+import pytest
+from fastapi.testclient import TestClient
+from src.search_api.main import app
+
 client = TestClient(app)
 
 @pytest.mark.skip(reason="Ollama must be running locally")
@@ -22,6 +27,4 @@ def test_search_resources():
     response = client.get("/v1/resource", params={"q": "mental health tips", "max_results": 3})
     assert response.status_code == 200
     assert isinstance(response.json(), list)
-
-
 

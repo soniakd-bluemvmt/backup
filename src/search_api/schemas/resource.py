@@ -20,4 +20,3 @@ class ResourceRead(BaseModel):
     resource_name: str
     resource_description: str | None
     resource_type: ResourceType
-
