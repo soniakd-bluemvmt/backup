@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from uuid import UUID
 from ..db import get_db
 from ..models.resource import Resource
-from ..schemas.resource import ResourceCreate, ResourceRead
+from ..schemas.resource import ResourceCreate, ResourceRead, ResourceUpdate
 from ..ollama_client import get_embedding_from_ollama
 
 router = APIRouter()
@@ -44,3 +44,28 @@ def search_resources(q: str, tenant_uuid: UUID, max_results: int = 5, db: Sessio
         for row in results
     ]
 
+@router.patch("/v1/resource/{resource_uuid}")
+def update_resource(resource_uuid: UUID, update: ResourceUpdate, db: Session = Depends(get_db)):
+    resource = db.scalar(select(Resource).where(Resource.resource_uuid == resource_uuid))
+    if not resource:
+        raise HTTPException(status_code=404, detail="Resource not found")
+
+    if update.resource_name is not None:
+        resource.resource_name = update.resource_name
+    if update.resource_description is not None:
+        resource.resource_description = update.resource_description
+    if update.text is not None:
+        resource.embedding = get_embedding_from_ollama(update.text)
+
+    db.commit()
+    db.refresh(resource)
+    return {"message": "Resource updated"}
+
+@router.delete("/v1/resource/{resource_uuid}")
+def delete_resource(resource_uuid: UUID, db: Session = Depends(get_db)):
+    resource = db.scalar(select(Resource).where(Resource.resource_uuid == resource_uuid))
+    if not resource:
+        raise HTTPException(status_code=404, detail="Resource not found")
+    db.delete(resource)
+    db.commit()
+    return {"message": "Resource deleted"}

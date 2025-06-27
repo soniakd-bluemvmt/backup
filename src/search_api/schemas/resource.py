@@ -22,3 +22,8 @@ class ResourceRead(BaseModel):
     resource_description: str | None
     resource_type: ResourceType
     score: float
+
+class ResourceUpdate(BaseModel):
+    resource_name: str | None = None
+    resource_description: str | None = None
+    text: str | None = None  # if present, re-embed
