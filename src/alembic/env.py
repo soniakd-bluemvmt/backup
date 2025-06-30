@@ -1,9 +1,15 @@
 import os
+import sys
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
 from alembic import context
-from src.models import Base  # adjust this path to where your models.Base is
+
+# ✅ Add 'src' to sys.path so Python can resolve search_api.*
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "src")))
+
+# ✅ Now import Base from the correct module
+from search_api.models.resource import Base
 
 
 # this is the Alembic Config object
