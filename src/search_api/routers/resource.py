@@ -5,6 +5,8 @@ from search_api.schemas.resource import ResourceCreate, ResourceSearchResult
 from search_api.models.resource import Resource, ResourceType
 from search_api.db import get_db
 from search_api.vector import get_embedding, search_similar
+from search_api.tasks import embed_resource
+
 
 router = APIRouter(prefix="/v1/resource", tags=["Resource"])
 
@@ -24,6 +26,8 @@ def create_resource(resource: ResourceCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_resource)
     return {"status": "created", "uuid": str(db_resource.uuid)}
+
+
 
 
 @router.get("", response_model=List[ResourceSearchResult])
