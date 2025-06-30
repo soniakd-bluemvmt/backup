@@ -1,30 +1,25 @@
-from pydantic import BaseModel, Field
-from typing import List
-import uuid
+from pydantic import BaseModel, UUID4
 from enum import Enum
+from typing import Optional
+
 
 class ResourceType(str, Enum):
     SIDECAR = "SIDECAR"
     DATASOURCE = "DATASOURCE"
     DATABOOK = "DATABOOK"
 
+
 class ResourceCreate(BaseModel):
-    resource_uuid: uuid.UUID
-    tenant_uuid: uuid.UUID
+    resource_uuid: UUID4
+    tenant_uuid: UUID4
     resource_type: ResourceType
     resource_name: str
-    resource_description: str | None = None
-    text: str = Field(description="Text to be embedded and stored")
+    resource_description: Optional[str]
 
-class ResourceRead(BaseModel):
-    resource_uuid: uuid.UUID
+
+class ResourceSearchResult(BaseModel):
+    resource_uuid: UUID4
     resource_name: str
-    resource_description: str | None
+    resource_description: Optional[str]
     resource_type: ResourceType
     score: float
-
-class ResourceUpdate(BaseModel):
-    resource_name: str | None = None
-    resource_description: str | None = None
-    text: str | None = None  # if present, re-embed
-

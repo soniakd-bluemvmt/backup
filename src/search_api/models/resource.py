@@ -1,24 +1,26 @@
-from sqlalchemy import Text, TIMESTAMP, JSON, VARCHAR, Enum as PgEnum
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import Column, Enum, String, Text
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import declarative_base
 from pgvector.sqlalchemy import Vector
 import uuid
 import enum
 
-class Base(DeclarativeBase):
-    pass
+Base = declarative_base()
+
 
 class ResourceType(str, enum.Enum):
     SIDECAR = "SIDECAR"
     DATASOURCE = "DATASOURCE"
     DATABOOK = "DATABOOK"
 
+
 class Resource(Base):
     __tablename__ = "resources"
 
-    uuid: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    resource_uuid: Mapped[uuid.UUID] = mapped_column(nullable=False, unique=True)
-    tenant_uuid: Mapped[uuid.UUID] = mapped_column(nullable=False)
-    resource_type: Mapped[ResourceType] = mapped_column(PgEnum(ResourceType), nullable=False)
-    resource_name: Mapped[str] = mapped_column(VARCHAR, nullable=False)
-    resource_description: Mapped[str] = mapped_column(Text, nullable=True)
-    embedding: Mapped[list[float]] = mapped_column(Vector(1536), nullable=False)
+    uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    resource_uuid = Column(UUID(as_uuid=True), nullable=False)
+    tenant_uuid = Column(UUID(as_uuid=True), nullable=False)
+    resource_type = Column(Enum(ResourceType, name="resourcetype"), nullable=False)
+    resource_name = Column(String(255), nullable=False)
+    resource_description = Column(Text, nullable=True)
+    embedding = Column(Vector(384), nullable=False)  # adjust dimension based on model used
