@@ -6,4 +6,10 @@ from .routers import resource
 Base.metadata.create_all(bind=engine)  # auto-create tables
 
 app = FastAPI()
+
+@app.on_event("startup")
+def on_startup():
+    create_tables()
+
+    
 app.include_router(resource.router)  # register /v1/resource endpoints
