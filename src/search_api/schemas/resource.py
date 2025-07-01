@@ -23,3 +23,14 @@ class ResourceSearchResult(BaseModel):
     resource_description: Optional[str]
     resource_type: ResourceType
     score: float
+
+class EmbeddingStatus(str, Enum):
+    PENDING = "PENDING"
+    SUCCESS = "SUCCESS"
+    FAILED = "FAILED"
+
+class Resource(ResourceSearchResult):
+    embedding: Optional[list[float]]
+    embedding_status: EmbeddingStatus
+    status_detail: Optional[str]
+

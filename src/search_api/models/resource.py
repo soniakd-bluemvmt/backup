@@ -1,8 +1,9 @@
 from sqlalchemy import Column, String, Enum, Text
 from sqlalchemy.dialects.postgresql import UUID
 from pgvector.sqlalchemy import Vector
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 import enum
+
 
 Base = declarative_base()
 

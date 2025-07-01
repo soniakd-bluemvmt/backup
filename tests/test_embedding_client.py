@@ -2,8 +2,8 @@
 import pytest
 import respx
 import httpx
-from src.clients.embedding_client import get_embedding_litellm, LITELLM_HOST, LITELLM_MODEL
-import asyncio
+from search_api.clients.embedding_client import get_embedding_litellm, LITELLM_HOST, LITELLM_MODEL
+
 
 @pytest.mark.asyncio
 @respx.mock
