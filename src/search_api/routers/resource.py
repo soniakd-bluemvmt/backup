@@ -9,6 +9,10 @@ from search_api.db import get_db
 from search_api.vector import search_similar, get_embedding
 from search_api.tasks import embed_resource
 
+from typing import Optional
+from search_api.models.resource import ResourceType  # import the enum
+
+
 router = APIRouter(prefix="/v1/resource", tags=["Resource"])
 
 @router.post("", status_code=202)
@@ -39,18 +43,25 @@ def create_resource(
 def search_resources(
     q: str = Query(...),
     max_results: int = Query(10),
+    resource_type: Optional[ResourceType] = Query(None),  # new optional filter
     include_pending: bool = Query(False),
     db: Session = Depends(get_db),
 ):
     query_embedding = get_embedding(q)
 
     base_query = db.query(Resource)
+
+    # Filter out resources without successful embeddings unless include_pending is True
     if not include_pending:
         base_query = base_query.filter(Resource.embedding_status == EmbeddingStatus.SUCCESS)
 
+    # If resource_type is specified, filter by it
+    if resource_type is not None:
+        base_query = base_query.filter(Resource.resource_type == resource_type)
+
     results = search_similar(base_query, query_embedding, max_results)
     return results
-
+    
 
 @router.get("/{resource_uuid}")
 def get_resource_by_uuid(
