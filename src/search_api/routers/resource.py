@@ -61,7 +61,7 @@ def search_resources(
 
     results = search_similar(base_query, query_embedding, max_results)
     return results
-    
+
 
 @router.get("/{resource_uuid}")
 def get_resource_by_uuid(
