@@ -8,6 +8,8 @@ COPY src ./src
 COPY docker/entrypoint.sh /app/entrypoint.sh
 COPY src/alembic /app/alembic
 COPY alembic.ini /app/alembic.ini
+COPY docker/check_db.py ./docker/check_db.py
+
 
 RUN pip install poetry==2.1.3 \
  && poetry config virtualenvs.create false \
@@ -17,7 +19,8 @@ ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH"
 
 #RUN chmod +x /app/entrypoint.sh
-RUN chmod +x docker/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 
 
 ENTRYPOINT ["sh", "/app/entrypoint.sh"]

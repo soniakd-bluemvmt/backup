@@ -2,7 +2,7 @@
 
 # Create the database if it doesn't exist using check_db.py
 echo "Checking and creating database if it doesn't exist..."
-python .docker/check_db.py || exit 1
+python docker/check_db.py || exit 1
 echo "Database check complete."
 
 # Run Alembic migrations
