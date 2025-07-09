@@ -11,10 +11,11 @@ class ResourceType(str, Enum):
 
 class ResourceCreate(BaseModel):
     resource_uuid: UUID4
-    tenant_uuid: UUID4
-    resource_type: ResourceType
+    resource_type: ResourceTypeEnum
     resource_name: str
-    resource_description: Optional[str]
+    resource_description: Optional[str] = None
+
+
 
 
 class ResourceSearchResult(BaseModel):
