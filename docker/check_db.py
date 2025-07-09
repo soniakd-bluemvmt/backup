@@ -1,10 +1,9 @@
 import psycopg2
 import os
 import sys
-
-DB_USER = os.getenv("POSTGRES_USER", "bluemvmt")
+DB_USER = os.getenv("DB_USER", "postgres")  
 DB_NAME = os.getenv("POSTGRES_DB", "search_db")
-DB_HOST = os.getenv("POSTGRES_HOST", "postgresql.bluemvmt")
+DB_HOST = os.getenv("POSTGRES_HOST", "bluemvmt")
 DB_PORT = os.getenv("POSTGRES_PORT", "5432")
 DB_PASS = os.getenv("POSTGRES_PASS", "thisispostgres")
 

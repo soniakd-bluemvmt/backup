@@ -3,7 +3,7 @@ from .models.resource import Base
 from .db import engine
 from .routers import resource
 
-Base.metadata.create_all(bind=engine)  # auto-create tables
+#Base.metadata.create_all(bind=engine)  # auto-create tables
 
 app = FastAPI()
 
