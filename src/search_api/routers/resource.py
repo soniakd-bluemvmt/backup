@@ -1,16 +1,19 @@
 from fastapi import APIRouter, HTTPException, Query, Depends, BackgroundTasks, Path, Header
 from sqlalchemy.orm import Session
-from typing import List
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+from typing import List, Optional
 from uuid import UUID
+import os
 
 from search_api.schemas.resource import ResourceCreate, ResourceSearchResult
-from search_api.models.resource import Resource, EmbeddingStatus
+from search_api.models.resource import Resource, EmbeddingStatus, ResourceType
 from search_api.db import get_db
-from search_api.vector import search_similar, get_embedding
 from search_api.tasks import embed_resource
+from search_api.vector_utils import search_similar_for_tenant
 
-from typing import Optional
-from search_api.models.resource import ResourceType  # import the enum
+ASYNC_DATABASE_URL = os.getenv("ASYNC_DATABASE_URL", "postgresql+asyncpg://user:password@localhost/dbname")
+
 
 
 router = APIRouter(prefix="/v1/resource", tags=["Resource"])
@@ -45,31 +48,26 @@ def create_resource(
 
 
 @router.get("", response_model=List[ResourceSearchResult])
-def search_resources(
+async def search_resources(
     q: str = Query(...),
     max_results: int = Query(10),
     resource_type: Optional[ResourceType] = Query(None),
     include_pending: bool = Query(False),
     tenant_uuid: UUID = Header(..., alias="X-Tenant-ID"),
-    db: Session = Depends(get_db),
 ):
-    query_embedding = get_embedding(q)
+    engine = create_async_engine(ASYNC_DATABASE_URL)
+    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
-    base_query = db.query(Resource)
-
-    # Filter by tenant first
-    base_query = base_query.filter(Resource.tenant_uuid == tenant_uuid)
-
-    # Filter out resources without successful embeddings unless include_pending is True
-    if not include_pending:
-        base_query = base_query.filter(Resource.embedding_status == EmbeddingStatus.SUCCESS)
-
-    # If resource_type is specified, filter by it
-    if resource_type is not None:
-        base_query = base_query.filter(Resource.resource_type == resource_type)
-
-    results = search_similar(base_query, query_embedding, max_results)
-    return results
+    async with async_session() as session:
+        results = await search_similar_for_tenant(
+            session=session,
+            query_text=q,
+            tenant_uuid=str(tenant_uuid),
+            max_results=max_results,
+            resource_type=resource_type,
+            include_pending=include_pending,
+        )
+        return results
 
 
 @router.get("/{resource_uuid}")
