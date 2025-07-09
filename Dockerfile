@@ -1,5 +1,9 @@
 FROM python:3.12-slim
 
+
+RUN useradd bluemvmt -s /bin/bash -m
+USER bluemvmt
+
 WORKDIR /app
 
 

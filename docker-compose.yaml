@@ -1,14 +1,12 @@
-
-# docker-compose.yml
 version: "3.9"
 services:
   db:
     image: ankane/pgvector
     restart: always
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: search_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: thisispostgres
+      POSTGRES_DB: bluemvmt
     ports:
       - "5432:5432"
     volumes:
@@ -21,14 +19,12 @@ services:
     depends_on:
       - db
     environment:
-        POSTGRES_USER: user
-        POSTGRES_PASSWORD: password
-        POSTGRES_DB: search_db
-        POSTGRES_HOST: db
-        POSTGRES_PORT: "5432"
-        DATABASE_URL: postgresql://user:password@db:5432/search_db
-   # volumes:
-    #  - .:/app
+      DB_HOST: bluemvmt.postgres   
+      DB_USER: postgres
+      DB_PASSWORD: thisispostgres
+      DB_NAME: bluemvmt
+      LOG_LEVEL: INFO
+      PORT: 8080
     command: ["poetry", "run", "uvicorn", "src.search_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
 volumes:
