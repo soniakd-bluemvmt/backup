@@ -2,6 +2,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from src.search_api.main import app
+import search_api
 
 client = TestClient(app)
 
