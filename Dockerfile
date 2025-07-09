@@ -5,8 +5,7 @@ WORKDIR /app
 
 COPY pyproject.toml ./ 
 COPY src ./src
-COPY docker ./docker
-COPY docker/entrypoint.sh ./entrypoint.sh
+COPY docker/entrypoint.sh /app/entrypoint.sh
 COPY src/alembic /app/alembic
 COPY alembic.ini /app/alembic.ini
 
