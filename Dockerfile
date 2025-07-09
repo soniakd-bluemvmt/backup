@@ -1,15 +1,16 @@
 FROM python:3.12-slim
 
-
+# Install build dependencies for compiling greenlet and other packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    python3-dev \
+    gcc \
     libpq-dev \
- && rm -rf /var/lib/apt/lists/*
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
+RUN pip install --upgrade pip
 
-RUN useradd bluemvmt -s /bin/bash -m
-USER bluemvmt
+RUN pip install --no-cache-dir poetry==2.1.3
 
 WORKDIR /app
 
@@ -20,9 +21,8 @@ COPY src/alembic /app/alembic
 COPY alembic.ini /app/alembic.ini
 COPY docker/check_db.py ./docker/check_db.py
 
-RUN pip install --no-cache-dir poetry==2.1.3 \
- && python -m poetry config virtualenvs.create false \
- && python -m poetry install --no-interaction --no-ansi
+RUN python -m poetry config virtualenvs.create false \
+    && python -m poetry install --no-interaction --no-ansi
 
 ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH"
