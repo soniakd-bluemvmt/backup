@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from search_api.db import SessionLocal
 from search_api.models.resource import Resource, EmbeddingStatus
-from search_api.vector import get_embedding
+from search_api.vector_utils import get_embedding, search_similar_for_tenant
 import logging
 
 logger = logging.getLogger(__name__)

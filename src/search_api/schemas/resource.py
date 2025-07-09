@@ -11,11 +11,9 @@ class ResourceType(str, Enum):
 
 class ResourceCreate(BaseModel):
     resource_uuid: UUID4
-    resource_type: ResourceTypeEnum
+    resource_type: ResourceType
     resource_name: str
     resource_description: Optional[str] = None
-
-
 
 
 class ResourceSearchResult(BaseModel):
@@ -28,7 +26,7 @@ class ResourceSearchResult(BaseModel):
 class EmbeddingStatus(str, Enum):
     PENDING = "PENDING"
     SUCCESS = "SUCCESS"
-    FAILED = "FAILED"
+    FAILED = "FAILED" 
 
 class Resource(ResourceSearchResult):
     embedding: Optional[list[float]]
