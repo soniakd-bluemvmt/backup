@@ -1,29 +1,47 @@
-Vector similarity search API using FastAPI, PostgreSQL + pgvector, and Ollama for embedding.
+# Vector similarity search API using FastAPI, PostgreSQL + pgvector, and Ollama for embedding.
 
 ## Setup
 
-```bash
-poetry install
-poetry run uvicorn src.search_api.main:app --reload
-```
+Make sure you have Docker and Docker Compose installed.
 
-Ensure Ollama is running locally with an embedding model like `mxb` or `mxb-large`:
+### 1. Start PostgreSQL with pgvector enabled
 
-```bash
-ollama run mxb
-```
+Use a PostgreSQL Docker image that includes pgvector, e.g.:
 
----
+```yaml
+services:
+  postgresql:
+    image: vshefferbluemvmt/postgresql-16-pgvector:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: your_password_here
+      POSTGRES_DB: search_db
+    ports:
+      - "5432:5432"
 
-## API Endpoints
+Ensure pgvector extension is created once your DB is running:
 
-### Create a Resource
-```http
+sql
+CREATE EXTENSION IF NOT EXISTS vector;
+
+
+Create or confirm the Docker network bluemvmt exists:
+docker network ls
+docker network create bluemvmt
+
+### 2. RUN API
+
+docker compose up --build
+
+
+API Endpoints
+Create a Resource
+
 POST /v1/resource
-```
 
-#### Request JSON
-```json
+
+
+Request JSON
 {
   "resource_uuid": "<uuid>",
   "tenant_uuid": "<uuid>",
@@ -32,24 +50,20 @@ POST /v1/resource
   "resource_description": "Optional description",
   "text": "This is the content to embed."
 }
-```
 
-#### Response
-```json
+
+Response
 {
   "message": "Resource created"
 }
-```
 
----
 
-### Search for a Resource
-```http
+Search for a Resource
+
 GET /v1/resource?q=<search text>&tenant_uuid=<uuid>&max_results=5
-```
 
-#### Response
-```json
+
+Response
 [
   {
     "resource_uuid": "...",
@@ -59,41 +73,33 @@ GET /v1/resource?q=<search text>&tenant_uuid=<uuid>&max_results=5
     "score": 0.03
   }
 ]
-```
+Update a Resource
 
----
-
-### Update a Resource
-```http
 PATCH /v1/resource/{resource_uuid}
-```
 
-#### Request JSON
-```json
+
+Request JSON
 {
   "resource_name": "Updated Name",
   "resource_description": "Updated Description",
   "text": "New text to re-embed"
 }
-```
 
-#### Response
-```json
+
+Response
+
 {
   "message": "Resource updated"
 }
-```
 
----
 
-### Delete a Resource
-```http
+Delete a Resource
+
 DELETE /v1/resource/{resource_uuid}
-```
 
-#### Response
-```json
+
+
+Response
 {
   "message": "Resource deleted"
 }
-```
