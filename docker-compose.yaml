@@ -5,8 +5,8 @@ services:
     build: .
     ports:
       - "8000:8000"
-    depends_on:
-      - postgresql  #local-infra/common
+    #depends_on:
+      #- postgresql  #local-infra/common
     networks:
       - bluemvmt
     environment:
