@@ -14,7 +14,7 @@ services:
     image: vshefferbluemvmt/postgresql-16-pgvector:latest
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: your_password_here
+      POSTGRES_PASSWORD: 
       POSTGRES_DB: search_db
     ports:
       - "5432:5432"
