@@ -29,7 +29,7 @@ Create or confirm the Docker network bluemvmt exists:
 docker network ls
 docker network create bluemvmt
 
-### 2. RUN API
+#### 2. RUN API
 
 docker compose up --build
 
