@@ -2,7 +2,7 @@ import asyncio
 import httpx
 
 LITELLM_HOST = "http://localhost:4000"
-LITELLM_MODEL = "gemini-embedding"
+LITELLM_MODEL = "projects/google/locations/us-central1/models/embedding-gecko-001"
 
 async def test_embedding():
     text = "Hello from Gemini embedding test!"
