@@ -10,7 +10,7 @@ services:
     networks:
       - bluemvmt
     environment:
-      DB_HOST: postgresql
+      DB_HOST: postgresql.bluemvmt
       DB_NAME: search_db
       DB_USER: postgres
       DB_PASSWORD:         #empty
