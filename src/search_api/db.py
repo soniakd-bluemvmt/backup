@@ -33,5 +33,6 @@ async def get_db() -> AsyncSession:
 
 # Sync engine and sessionmaker
 sync_engine = create_engine(SYNC_DATABASE_URL)
-SyncSessionLocal = sessionmaker(bind=sync_engine, autocommit=False, autoflush=False)
+SessionLocal = sessionmaker(bind=sync_engine, autocommit=False, autoflush=False)
+
 
