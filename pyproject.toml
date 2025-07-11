@@ -19,6 +19,7 @@ py-healthcheck = "^1.10.1"
 pyhumps = "^3.8.0"
 google-auth = "^2.29.0"
 google-auth-oauthlib = "^1.2.0"
+litellm = { version = "^1.34.3", extras = ["proxy"] } 
 
 [tool.poetry.group.dev.dependencies]
 testcontainers = "^4.10.0"
