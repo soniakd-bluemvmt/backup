@@ -1,39 +1,34 @@
-FROM python:3.12-slim
-
-# Install build dependencies for compiling greenlet and other packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    gcc \
-    libpq-dev \
-    python3-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN pip install --upgrade pip
-
-RUN pip install --no-cache-dir poetry==2.1.3
-RUN python -m poetry config virtualenvs.create false \
-    && python -m poetry install --extras "proxy" --no-interaction --no-ansi
-
+FROM python:3.12
 
 WORKDIR /app
 
-COPY pyproject.toml ./ 
+# Copy project metadata first
+COPY pyproject.toml poetry.lock* ./
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc libpq-dev python3-dev curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN pip install --upgrade pip && pip install poetry==1.8.2
+
+# Required in your case to prevent install crash
+RUN pip install numpy --no-cache-dir
+
+
 COPY src ./src
-COPY docker/entrypoint.sh /app/entrypoint.sh
-COPY src/alembic /app/alembic
-COPY alembic.ini /app/alembic.ini
+
+# Install Python deps
+RUN poetry install --no-interaction --no-ansi --with dev --only main --verbose
+
+COPY config.yaml .
+COPY alembic.ini .
+COPY docker/entrypoint.sh .
 COPY docker/check_db.py ./docker/check_db.py
-COPY config.yaml /app/config.yaml
 
+RUN chmod +x entrypoint.sh
 
-RUN python -m poetry config virtualenvs.create false \
-    && python -m poetry install --no-interaction --no-ansi
+ENTRYPOINT ["sh", "entrypoint.sh"]
 
-ENV VIRTUAL_ENV=/app/.venv \
-    PATH="/app/.venv/bin:$PATH"
-
-RUN chmod +x /app/entrypoint.sh
-
-ENTRYPOINT ["sh", "/app/entrypoint.sh"]
-
-CMD ["poetry", "run", "uvicorn", "src.search_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["poetry", "run", "uvicorn", "src.search_api.main:app", "--host", "0.0.0.0", "--port", "8000"]
