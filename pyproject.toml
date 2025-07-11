@@ -17,6 +17,8 @@ alembic = "^1.13"
 asyncpg = "^0.30.0"
 py-healthcheck = "^1.10.1"
 pyhumps = "^3.8.0"
+google-auth = "^2.29.0"
+google-auth-oauthlib = "^1.2.0"
 
 [tool.poetry.group.dev.dependencies]
 testcontainers = "^4.10.0"

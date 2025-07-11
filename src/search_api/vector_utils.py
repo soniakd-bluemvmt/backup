@@ -1,56 +1,37 @@
-import os
+from google.auth.transport.requests import Request
+from google.oauth2 import service_account
 import httpx
 import json
-from typing import List, Dict, Any, Optional
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql import select, text
-from sqlalchemy import func
+SERVICE_ACCOUNT_FILE = "/app/secrets/vertex-sa.json"
+SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
 
-from pgvector.sqlalchemy import Vector
-from search_api.models.resource import Resource
-from search_api.schemas.resource import ResourceType
-from search_api.models.resource import EmbeddingStatus
+def fetch_access_token() -> str:
+    credentials = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES
+    )
+    credentials.refresh(Request())
+    return credentials.token
 
-
-LITELLM_HOST = os.getenv("LITELLM_HOST", "http://litellm:4000")
-LITELLM_MODEL = os.getenv("LITELLM_MODEL", "gemini-embedding")
-ASYNC_DATABASE_URL = os.getenv("ASYNC_DATABASE_URL", "postgresql+asyncpg://user:password@localhost/dbname")
-
-
-async def get_embedding(text: str) -> list[float]:
+async def get_embedding(text: str) -> List[float]:
+    token = fetch_access_token()
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json; charset=utf-8"
+    }
+    json_data = {
+        "instances": [
+            {
+                "task_type": "RETRIEVAL_DOCUMENT",
+                "content": text
+            }
+        ]
+    }
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            f"{LITELLM_HOST}/embeddings",
-            json={"model": LITELLM_MODEL, "input": text},
+            "https://us-central1-aiplatform.googleapis.com/v1/projects/isdata-staging/locations/us-central1/publishers/google/models/gemini-embedding-001:predict",
+            headers=headers,
+            json=json_data,
         )
         response.raise_for_status()
-        return response.json()["data"][0]["embedding"]
-
-
-async def search_similar_for_tenant(
-    session: AsyncSession,
-    query_text: str,
-    tenant_uuid: str,
-    max_results: int = 10,
-    resource_type: Optional[ResourceType] = None,
-    include_pending: bool = False,
-) -> List[Resource]:
-    embedding = await get_embedding(query_text)
-
-    stmt = select(
-        Resource,
-        (1 - Resource.embedding.cosine_distance(embedding)).label("score")
-    ).filter(Resource.tenant_uuid == tenant_uuid)
-
-    if not include_pending:
-        stmt = stmt.filter(Resource.embedding_status == EmbeddingStatus.SUCCESS)
-
-    if resource_type:
-        stmt = stmt.filter(Resource.resource_type == resource_type)
-
-    stmt = stmt.order_by(text("score DESC")).limit(max_results)
-
-    result = await session.execute(stmt)
-    return [row[0] for row in result.fetchall()]
+        return response.json()["predictions"][0]["embeddings"]["values"]

@@ -1,10 +1,14 @@
+litellm_settings:
+  vertex_project: "isdata-staging"
+  vertex_location: "us-central1"
+
 providers:
   vertex_ai:
     base_url: "https://us-central1-aiplatform.googleapis.com"
     headers:
       Authorization: "Bearer ${ACCESS_TOKEN}"
     models:
-      embedding-gecko-001:
+      gemini-embedding-001:
         type: embedding
-        model_name: "projects/isdata-staging/locations/us-central1/models/textembedding-004"
+        model_name: "projects/isdata-staging/locations/us-central1/publishers/google/models/gemini-embedding-001"
         provider: vertex_ai
