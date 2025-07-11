@@ -1,26 +1,37 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
 import os
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session as SyncSession
+from fastapi import Depends
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:thisispostgres@localhost:5432/search_db")
+# Read individual DB params
+DB_USER = os.getenv("DB_USER", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD")  # empty
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_NAME = os.getenv("DB_NAME", "search_db")
 
-engine = create_engine(DATABASE_URL, echo=True)
+def make_db_url(user, password, host, port, dbname, async_=True):
+    driver = "postgresql+asyncpg" if async_ else "postgresql"
+    if password:  # only add password if set and non-empty
+        return f"{driver}://{user}:{password}@{host}:{port}/{dbname}"
+    else:
+        return f"{driver}://{user}@{host}:{port}/{dbname}"
 
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
+ASYNC_DATABASE_URL = os.getenv("ASYNC_DATABASE_URL") or make_db_url(DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME, async_=True)
+SYNC_DATABASE_URL = os.getenv("SYNC_DATABASE_URL") or make_db_url(DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME, async_=False)
 
-Base = declarative_base()
+# Async engine and sessionmaker
+engine = create_async_engine(ASYNC_DATABASE_URL, future=True, echo=False)
+async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
-def create_tables():
-    """Call this to create tables based on all models inheriting from Base."""
-    Base.metadata.create_all(bind=engine)
+async def get_db() -> AsyncSession:
+    async with async_session() as session:
+        yield session
+
+# Sync engine and sessionmaker
+sync_engine = create_engine(SYNC_DATABASE_URL)
+SyncSessionLocal = sessionmaker(bind=sync_engine, autocommit=False, autoflush=False)
+

@@ -92,3 +92,9 @@ def get_resource_by_uuid(
         "embedding_status": resource.embedding_status,
         "status_detail": resource.status_detail,
     }
+
+@router.get("/items")
+async def read_items(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(...)  # async SQLAlchemy queries
+    items = result.scalars().all()
+    return items

@@ -1167,13 +1167,13 @@ files = [
 
 [[package]]
 name = "huggingface-hub"
-version = "0.33.3"
+version = "0.33.4"
 description = "Client library to download and publish models, datasets and other repos on the huggingface.co hub"
 optional = false
 python-versions = ">=3.8.0"
 files = [
-    {file = "huggingface_hub-0.33.3-py3-none-any.whl", hash = "sha256:d72241a6f78b7f5978e3c757275d5c10dcbdf94d7c766c73d8ecb7bf1a108d46"},
-    {file = "huggingface_hub-0.33.3.tar.gz", hash = "sha256:d3c8be3b0abf5e1fae313efe9c4cdd78928cc3279cf517903b05b688a7abf13e"},
+    {file = "huggingface_hub-0.33.4-py3-none-any.whl", hash = "sha256:09f9f4e7ca62547c70f8b82767eefadd2667f4e116acba2e3e62a5a81815a7bb"},
+    {file = "huggingface_hub-0.33.4.tar.gz", hash = "sha256:6af13478deae120e765bfd92adad0ae1aec1ad8c439b46f23058ad5956cbca0a"},
 ]
 
 [package.dependencies]

@@ -2,7 +2,7 @@ import os
 import requests
 
 def get_gemini_embedding(text: str, project_id: str = "isdata-staging", location: str = "us-central1") -> list[float]:
-    access_token = os.getenv("ACCESS_TOKEN")
+    VERTEX_ACCESS_TOKEN = os.getenv("VERTEX_ACCESS_TOKEN")
     if not access_token:
         raise RuntimeError("ACCESS_TOKEN environment variable is not set")
 
@@ -11,9 +11,9 @@ def get_gemini_embedding(text: str, project_id: str = "isdata-staging", location
     )
 
     headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json; charset=utf-8",
-    }
+    "Authorization": f"Bearer {VERTEX_ACCESS_TOKEN}",
+    "Content-Type": "application/json",
+}
 
     data = {
         "instances": [

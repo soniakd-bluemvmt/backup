@@ -10,7 +10,9 @@ from fastapi import FastAPI
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-load_dotenv()
+load_dotenv(dotenv_path="secrets/.env.secret")
+vertex_token = os.getenv("VERTEX_ACCESS_TOKEN")
+print("Loaded token:", vertex_token)  # Just for testing, remove later
 
 log_levels = {
     "DEBUG": logging.DEBUG,
@@ -26,19 +28,16 @@ logging.basicConfig(level=log_level)
 log = logging.getLogger("init")
 
 db_info = {
-    "db_host": os.environ.get("DB_HOSTNAME", "postgresql.db"),
-    "db_user": os.environ.get("DB_USER", "postgres"),
-    "db_port": os.environ.get("DB_PORT", 5432),
-    "db_password": os.environ.get("DB_PASSWORD"),
-    "db_name": os.environ.get("DB_NAME", "datasource_api"),
+    "db_host": os.getenv("DB_HOST", "postgresql"),
+    "db_user": os.getenv("DB_USER", "postgres"),
+    "db_port": int(os.getenv("DB_PORT", 5432)),
+    "db_password": os.getenv("DB_PASSWORD", ""),  # empty string default since compose sets no password
+    "db_name": os.getenv("DB_NAME", "search_db"),
 }
 
 db_url = (
-    f"postgresql+asyncpg://{db_info['db_user']}:"
-    f"{db_info['db_password']}@"
-    f"{db_info['db_host']}:"
-    f"{db_info['db_port']}/"
-    f"{db_info['db_name']}"
+    f"postgresql+asyncpg://{db_info['db_user']}:{db_info['db_password']}@"
+    f"{db_info['db_host']}:{db_info['db_port']}/{db_info['db_name']}"
 )
 
 try:

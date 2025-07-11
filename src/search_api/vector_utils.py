@@ -1,3 +1,4 @@
+from typing import List
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 import httpx
@@ -27,7 +28,7 @@ async def get_embedding(text: str) -> List[float]:
             }
         ]
     }
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=10.0) as client:
         response = await client.post(
             "https://us-central1-aiplatform.googleapis.com/v1/projects/isdata-staging/locations/us-central1/publishers/google/models/gemini-embedding-001:predict",
             headers=headers,
